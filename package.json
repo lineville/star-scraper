@@ -1,0 +1,16 @@
+{
+  "name": "star-scraper",
+  "version": "1.0.0",
+  "description": "Utility to fetch info about GitHub stargazers",
+  "main": "index.js",
+  "author": "lineville",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "octokit": "^1.8.0"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
