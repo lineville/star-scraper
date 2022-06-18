@@ -5,8 +5,9 @@
   "main": "index.js",
   "author": "lineville",
   "license": "MIT",
-  "type": "module",
+  "type": "commonjs",
   "dependencies": {
+    "command-line-args": "^5.2.1",
     "dotenv": "^16.0.1",
     "octokit": "^1.8.0"
   },
