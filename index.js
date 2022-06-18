@@ -43,6 +43,7 @@ const main = async () => {
     }
   }));
   console.log(`Hubbers: ${hubbers.filter(h => h.is_hubber).length}`);
+  console.log(`Percentage of hubbers: ${(hubbers.filter(h => h.is_hubber).length / hubbers.length) * 100}%`);
 };
 
 main();
