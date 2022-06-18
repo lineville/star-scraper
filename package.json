@@ -5,11 +5,12 @@
   "main": "index.js",
   "author": "lineville",
   "license": "MIT",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "command-line-args": "^5.2.1",
     "dotenv": "^16.0.1",
-    "octokit": "^1.8.0"
+    "octokit": "^1.8.0",
+    "ora": "^6.1.0"
   },
   "scripts": {
     "start": "node index.js"

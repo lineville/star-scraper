@@ -1,7 +1,10 @@
-require('dotenv').config()
-const commandLineArgs = require("command-line-args");
-const { Octokit } = require("octokit");
-const octokit = new Octokit({ auth: process.env.GH_PAT });
+import 'dotenv';
+import commandLineArgs from "command-line-args";
+import ora from 'ora';
+import { Octokit } from "octokit";
+
+// Setup
+const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
 const is_org_member = async (org, handle) => {
   try {
@@ -43,23 +46,33 @@ const main = async () => {
   ];
   const options = commandLineArgs(optionDefinitions);
 
+  const spinner = ora({ 
+    text: "Fetching Stargazers",
+    spinner: "aesthetic",
+    indent: 4,
+    isSilent: true
+  }).start();
+  
+  
   const gazers = await fetch_stargazers(options.org, options.repo, 100, options.limit);
+  spinner.succeed();
+
   console.log(`Total stars: ${gazers.length}`);
-  const members_of_org = await Promise.all(
-    gazers.map(async (gazer) => {
-      const works_at_org = await is_org_member(options.org, gazer.login);
-      return {
-        login: gazer.login,
-        is_org_member: works_at_org,
-      };
-    })
-  );
-  console.log(`Members: ${members_of_org.filter((h) => h.is_org_member).length}`);
-  console.log(
-    `Percentage of org members: ${
-      (members_of_org.filter((h) => h.is_org_member).length / members_of_org.length) * 100
-    }%`
-  );
+  // const members_of_org = await Promise.all(
+  //   gazers.map(async (gazer) => {
+  //     const works_at_org = await is_org_member(options.org, gazer.login);
+  //     return {
+  //       login: gazer.login,
+  //       is_org_member: works_at_org,
+  //     };
+  //   })
+  // );
+  // console.log(`Members: ${members_of_org.filter((h) => h.is_org_member).length}`);
+  // console.log(
+  //   `Percentage of org members: ${
+  //     (members_of_org.filter((h) => h.is_org_member).length / members_of_org.length) * 100
+  //   }%`
+  // );
 };
 
 main();
