@@ -5,10 +5,17 @@ name: 🧶 start
 
 on:
   workflow_dispatch:
-env:
-  org: github
-  repo: gh-valet
-  token: $${{ secrets.GH_TOKEN }}
+inputs:
+  org:
+    description: 'GitHub Organization'
+    required: true
+  repo:
+    description: 'GitHub Repository'
+    required: true
+  limit:
+    description: 'Max stargazers to fetch'
+    required: false
+    default: 1000
 jobs:
   build:
     name: Run
@@ -20,7 +27,9 @@ jobs:
           cmd: install
       - uses: borales/actions-yarn@v3.0.0
         with:
-          cmd: build
-      - uses: borales/actions-yarn@v3.0.0
-        with:
-          cmd: start --org ${{ env.org }} --repo ${{ env.repo }} --token ${{ env.token }}
+          cmd: start \
+          --org ${{ inputs.org }} \
+          --repo ${{ inputs.repo }} \
+          --limit ${{ inputs.limit }} \
+          --token ${{ secrets.GH_TOKEN }}
+
