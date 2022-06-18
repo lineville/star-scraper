@@ -28,9 +28,5 @@ jobs:
           cmd: install
       - uses: borales/actions-yarn@v3.0.0
         with:
-          cmd: start \
-          --org ${{ github.event.inputs.org }} \
-          --repo ${{ github.event.inputs.repo }} \
-          --limit ${{ github.event.inputs.limit }} \
-          --token ${{ secrets.GH_TOKEN }}
+          cmd: start --org ${{ github.event.inputs.org }} --repo ${{ github.event.inputs.repo }} --limit ${{ github.event.inputs.limit }} --token ${{ secrets.GH_TOKEN }}
 
