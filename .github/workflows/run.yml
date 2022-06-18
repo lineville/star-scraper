@@ -5,17 +5,17 @@ name: 🧶 start
 
 on:
   workflow_dispatch:
-inputs:
-  org:
-    description: 'GitHub Organization'
-    required: true
-  repo:
-    description: 'GitHub Repository'
-    required: true
-  limit:
-    description: 'Max stargazers to fetch'
-    required: false
-    default: 1000
+    inputs:
+      org:
+        description: 'GitHub Organization'
+        required: true
+      repo:
+        description: 'GitHub Repository'
+        required: true
+      limit:
+        description: 'Max stargazers to fetch'
+        required: false
+        default: 1000
 jobs:
   build:
     name: Run
