@@ -52,14 +52,16 @@ const main = async () => {
     text: "Fetching Stargazers",
     spinner: "aesthetic",
     indent: 4,
-    isSilent: true
   }).start();
   
-  
   const gazers = await fetch_stargazers(octokit, options.org, options.repo, 100, options.limit || 1000);
-  spinner.succeed();
+  spinner.succeed(`Fetched ${gazers.length} Stargazers`);
 
-  console.log(`Total stars: ${gazers.length}`);
+  const spinner_2 = ora({
+    text: "Checking if Stargazers are org members",
+    spinner: "aesthetic",
+    indent: 4,
+  }).start();
   const members_of_org = await Promise.all(
     gazers.map(async (gazer) => {
       const works_at_org = await is_org_member(octokit, options.org, gazer.login);
@@ -69,12 +71,9 @@ const main = async () => {
       };
     })
   );
-  console.log(`Members: ${members_of_org.filter((h) => h.is_org_member).length}`);
-  console.log(
-    `Percentage of org members: ${
-      (members_of_org.filter((h) => h.is_org_member).length / members_of_org.length) * 100
-    }%`
-  );
+  const org_member_stars = members_of_org.filter((member) => member.is_org_member).length;
+  const percentage_member_stars = (org_member_stars / gazers.length) * 100;
+  spinner_2.succeed(`(${org_member_stars}/${gazers.length}) -- ${percentage_member_stars}% of stars on repo ${options.org}/${options.repo} come from members of the ${options.org} organization.`);
 };
 
 main();
