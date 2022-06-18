@@ -58,21 +58,21 @@ const main = async () => {
   spinner.succeed();
 
   console.log(`Total stars: ${gazers.length}`);
-  // const members_of_org = await Promise.all(
-  //   gazers.map(async (gazer) => {
-  //     const works_at_org = await is_org_member(options.org, gazer.login);
-  //     return {
-  //       login: gazer.login,
-  //       is_org_member: works_at_org,
-  //     };
-  //   })
-  // );
-  // console.log(`Members: ${members_of_org.filter((h) => h.is_org_member).length}`);
-  // console.log(
-  //   `Percentage of org members: ${
-  //     (members_of_org.filter((h) => h.is_org_member).length / members_of_org.length) * 100
-  //   }%`
-  // );
+  const members_of_org = await Promise.all(
+    gazers.map(async (gazer) => {
+      const works_at_org = await is_org_member(options.org, gazer.login);
+      return {
+        login: gazer.login,
+        is_org_member: works_at_org,
+      };
+    })
+  );
+  console.log(`Members: ${members_of_org.filter((h) => h.is_org_member).length}`);
+  console.log(
+    `Percentage of org members: ${
+      (members_of_org.filter((h) => h.is_org_member).length / members_of_org.length) * 100
+    }%`
+  );
 };
 
 main();
