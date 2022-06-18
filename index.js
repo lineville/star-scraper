@@ -3,10 +3,8 @@ import commandLineArgs from "command-line-args";
 import ora from 'ora';
 import { Octokit } from "octokit";
 
-// Setup
-const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
-const is_org_member = async (org, handle) => {
+const is_org_member = async (octokit, org, handle) => {
   try {
     const member_of_org = await octokit.request(
       "GET /orgs/{org}/members/{username}",
@@ -21,7 +19,7 @@ const is_org_member = async (org, handle) => {
   }
 };
 
-const fetch_stargazers = async (owner, repo, per_page, limit) => {
+const fetch_stargazers = async (octokit, owner, repo, per_page, limit) => {
   let page = 1;
   let gazers = [];
   let payload = [];
@@ -43,8 +41,12 @@ const main = async () => {
     { name: "org", type: String, multiple: false },
     { name: "repo", type: String, multiple: false},
     { name: "limit", type: Number, multiple: false },
+    { name: "token", type: String, multiple: false }
   ];
   const options = commandLineArgs(optionDefinitions);
+  
+  const octokit = new Octokit({ auth: options.token || process.env.GITHUB_TOKEN });
+
 
   const spinner = ora({ 
     text: "Fetching Stargazers",
@@ -54,13 +56,13 @@ const main = async () => {
   }).start();
   
   
-  const gazers = await fetch_stargazers(options.org, options.repo, 100, options.limit);
+  const gazers = await fetch_stargazers(octokit, options.org, options.repo, 100, options.limit || 1000);
   spinner.succeed();
 
   console.log(`Total stars: ${gazers.length}`);
   const members_of_org = await Promise.all(
     gazers.map(async (gazer) => {
-      const works_at_org = await is_org_member(options.org, gazer.login);
+      const works_at_org = await is_org_member(octokit, options.org, gazer.login);
       return {
         login: gazer.login,
         is_org_member: works_at_org,
