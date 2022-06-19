@@ -20,4 +20,5 @@ jobs:
       with:
         auth-token: ${{ secrets.NPM_TOKEN }}
         registry-url: https://registry.npmjs.org/
+        cmd: publish
 
