@@ -82,7 +82,7 @@ const main = async () => {
     - 🌟 Total stars: ${gazers.length}
     - 👀 Org-member stars: ${org_member_stars}
     - ❣️ Non-org-member stars: ${gazers.length - org_member_stars}
-    - 👨‍🔬 ${percentage_member_stats}% of stars come from within the org
+    - 👨‍🔬 ${percentage_member_stars}% of stars come from within the org
   `
 };
 
