@@ -8,7 +8,8 @@ import { Octokit } from "octokit";
 import { marked } from "marked";
 import TerminalRenderer from "marked-terminal";
 
-const DEFAULT_LIMIT = 1000;
+const MAX_STAR_GAZERS = 100000;
+const MAX_ORG_MEMBERS = 100000;
 
 marked.setOptions({ renderer: new TerminalRenderer() });
 
@@ -105,7 +106,7 @@ const main = async () => {
     options.org,
     options.repo,
     100,
-    options.limit || DEFAULT_LIMIT
+    options.limit || MAX_STAR_GAZERS
   );
 
   // Stop spinner
@@ -132,7 +133,7 @@ const main = async () => {
     octokit,
     options.org,
     100,
-    options.limit || DEFAULT_LIMIT
+    options.limit || MAX_ORG_MEMBERS
   );
 
   // Stop 2nd spinner
