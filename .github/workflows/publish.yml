@@ -1,6 +1,6 @@
 # Deploy via yarn to npm
 
-name: Publish
+name: 🚢 Publish
 
 on: [ push, pull_request ]
   
