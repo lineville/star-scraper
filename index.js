@@ -1,4 +1,5 @@
-import 'dotenv';
+import dotenv from 'dotenv';
+dotenv.config({ path: './.env' });
 import commandLineArgs from "command-line-args";
 import ora from 'ora';
 import { Octokit } from "octokit";
@@ -58,7 +59,6 @@ const main = async () => {
     { name: "repo", type: String, multiple: false},
     { name: "limit", type: Number, multiple: false },
     { name: "token", type: String, multiple: false }
-    // { name: "spinner", type: String, multiple: false }
   ];
   const options = commandLineArgs(optionDefinitions);
   
