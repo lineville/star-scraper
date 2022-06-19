@@ -75,7 +75,7 @@ const main = async () => {
   const percentage_member_stars = (org_member_stars / gazers.length) * 100;
   spinner_2.succeed(`(${org_member_stars}/${gazers.length}) -- ${percentage_member_stars}% of stars on repo ${options.org}/${options.repo} come from members of the ${options.org} organization.`);
 
-  return `## 🌟 StarGazer Report
+  const report = `## 🌟 StarGazer Report
 
     - 🏗️ Organization: ${options.org}
     - 👨‍💻 Repository: ${options.repo}
@@ -83,7 +83,10 @@ const main = async () => {
     - 👀 Org-member stars: ${org_member_stars}
     - ❣️ Non-org-member stars: ${gazers.length - org_member_stars}
     - 👨‍🔬 ${percentage_member_stars}% of stars come from within the org
-  `
+  `;
+  
+  console.log(report);
+  return report;
 };
 
 main();
