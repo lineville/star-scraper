@@ -15,9 +15,9 @@
     "ora": "^6.1.0"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node bin/index.js"
   },
   "bin": {
-    "star-scraper": "./index.js"
+    "star-scraper": "./bin/index.js"
   }
 }
