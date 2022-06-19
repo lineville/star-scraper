@@ -16,5 +16,8 @@
   },
   "scripts": {
     "start": "node index.js"
+  },
+  "bin": {
+    "star-scraper": "./index.js"
   }
 }
