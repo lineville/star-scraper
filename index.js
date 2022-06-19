@@ -15,6 +15,11 @@ const is_org_member = async (octokit, org, handle) => {
     );
     return member_of_org.status == 204;
   } catch (e) {
+    if (e.message.includes('API rate limit')) {
+      console.log(`😥 You exceeded the API rate limits for your PAT... Need to wait a while and try again and with a smaller --limit option!`)
+      exit(1);
+    }
+    
     return false;
   }
 };
@@ -24,12 +29,19 @@ const fetch_stargazers = async (octokit, owner, repo, per_page, limit) => {
   let gazers = [];
   let payload = [];
   do {
-    payload = await octokit.request(`GET /repos/{owner}/{repo}/stargazers`, {
-      owner,
-      repo,
-      per_page,
-      page,
-    });
+    try {
+      payload = await octokit.request(`GET /repos/{owner}/{repo}/stargazers`, {
+        owner,
+        repo,
+        per_page,
+        page,
+      });
+    } catch (e) {
+      if (e.message.includes('API rate limit')) {
+        console.log(`😥 You exceeded the API rate limits for your PAT... Need to wait a while and try again and with a smaller --limit option!`)
+        exit(1);
+      }
+    }
     gazers.push(...payload.data);
     page++;
   } while (payload.data.length == per_page && gazers.length < limit);
@@ -71,6 +83,7 @@ const main = async () => {
       };
     })
   );
+
   const org_member_stars = members_of_org.filter((member) => member.is_org_member).length;
   const percentage_member_stars = Math.round((org_member_stars / gazers.length) * 100);
   spinner_2.succeed(`(${org_member_stars}/${gazers.length}) -- ${percentage_member_stars}% of stars on repo ${options.org}/${options.repo} come from members of the ${options.org} organization.`);
