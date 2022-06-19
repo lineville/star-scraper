@@ -17,9 +17,9 @@ const is_org_member = async (octokit, org, handle) => {
   } catch (e) {
     if (e.message.includes('API rate limit')) {
       console.log(`😥 You exceeded the API rate limits for your PAT... Need to wait a while and try again and with a smaller --limit option!`)
-      exit(1);
+      process.exit(1);
     }
-    
+
     return false;
   }
 };
@@ -39,7 +39,7 @@ const fetch_stargazers = async (octokit, owner, repo, per_page, limit) => {
     } catch (e) {
       if (e.message.includes('API rate limit')) {
         console.log(`😥 You exceeded the API rate limits for your PAT... Need to wait a while and try again and with a smaller --limit option!`)
-        exit(1);
+        process.exit(1);
       }
     }
     gazers.push(...payload.data);
