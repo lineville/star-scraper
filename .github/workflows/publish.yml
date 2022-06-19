@@ -1,0 +1,19 @@
+# Deploy via yarn to npm
+
+name: Publish
+
+on:
+  workflow_dispatch:
+  [ push, pull_request ]
+
+jobs:
+  deploy:
+    name: Yarn Publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: borales/actions-yarn@v3.0.0
+        name: yarn publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        with:
+          cmd: publish
