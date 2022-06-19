@@ -3,6 +3,10 @@ dotenv.config();
 import commandLineArgs from "command-line-args";
 import ora from "ora";
 import { Octokit } from "octokit";
+import { marked } from "marked";
+import TerminalRenderer from "marked-terminal";
+
+marked.setOptions({ renderer: new TerminalRenderer() });
 
 // Checks if a user is a member of an org
 const is_org_member = async (octokit, org, handle) => {
@@ -140,8 +144,7 @@ const main = async () => {
     `${percentage_member_stars}% (${org_member_stars}/${gazers.length}) of ${options.org}/${options.repo}'s ⭐'s come from within ${options.org}`
   );
 
-  const report = `## 🌟 StarGazer Report
-
+  const report = `# 🌟 StarGazer Report\n\n
     - 🏗️ Organization: ${options.org}
     - 👨‍💻 Repository: ${options.repo}
     - 🌟 Total stars: ${gazers.length}
@@ -150,7 +153,8 @@ const main = async () => {
     - 👨‍🔬 ~${percentage_member_stars}% of stars come from within ${options.org}
   `;
 
-  console.log(report);
+  console.log("\n\n");
+  console.log(marked(report));
   return report;
 };
 

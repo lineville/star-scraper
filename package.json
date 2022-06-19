@@ -9,6 +9,8 @@
   "dependencies": {
     "command-line-args": "^5.2.1",
     "dotenv": "^16.0.1",
+    "marked": "^4.0.17",
+    "marked-terminal": "^5.1.1",
     "octokit": "^1.8.0",
     "ora": "^6.1.0"
   },
