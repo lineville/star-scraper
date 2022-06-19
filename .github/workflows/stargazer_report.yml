@@ -19,7 +19,7 @@ on:
 
 jobs:
   build:
-    name: Run
+    name: 🌟 StarGazer Report
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
