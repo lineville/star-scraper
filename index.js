@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-dotenv.config({ path: './.env' });
+dotenv.config();
 import commandLineArgs from "command-line-args";
 import ora from 'ora';
 import { Octokit } from "octokit";
@@ -119,7 +119,7 @@ const main = async () => {
   // Print the results
   const org_member_stars = members_of_org.filter((member) => member.is_org_member).length;
   const percentage_member_stars = Math.round((org_member_stars / gazers.length) * 100);
-  spinner_2.succeed(`(${org_member_stars}/${gazers.length}) -- ${percentage_member_stars}% of stars on repo ${options.org}/${options.repo} come from members of the ${options.org} organization.`);
+  spinner_2.succeed(`${percentage_member_stars}% (${org_member_stars}/${gazers.length}) of ${options.org}/${options.repo}'s ⭐'s come from within ${options.org}`);
 
   const report = `## 🌟 StarGazer Report
 
@@ -128,7 +128,7 @@ const main = async () => {
     - 🌟 Total stars: ${gazers.length}
     - 👀 Org-member stars: ${org_member_stars}
     - ❣️ Non-org-member stars: ${gazers.length - org_member_stars}
-    - 👨‍🔬 ~${percentage_member_stars}% of stars come from within the org
+    - 👨‍🔬 ~${percentage_member_stars}% of stars come from within ${options.org}
   `;
 
   console.log(report);
