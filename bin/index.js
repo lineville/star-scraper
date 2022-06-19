@@ -12,8 +12,8 @@ const DEFAULT_LIMIT = 1000;
 
 marked.setOptions({ renderer: new TerminalRenderer() });
 
-const fetch_org_members = async (octokit, params, per_page) => {
-  await octokit.request("GET /orgs/{org}/members", {
+const fetch_org_members = async (octokit, params, per_page, page) => {
+  return await octokit.request("GET /orgs/{org}/members", {
     org: params.org,
     per_page,
     page,
@@ -21,7 +21,7 @@ const fetch_org_members = async (octokit, params, per_page) => {
 };
 
 const fetch_stargazers = async (octokit, params, per_page, page) => {
-  await octokit.request(`GET /repos/{owner}/{repo}/stargazers`, {
+  return await octokit.request(`GET /repos/{owner}/{repo}/stargazers`, {
     owner: params.owner,
     repo: params.repo,
     per_page,
@@ -36,7 +36,7 @@ const fetch_all = async (octokit, params, per_page, limit, retriever) => {
   let payload = [];
   do {
     try {
-      payload = await retriever(octokit, params, per_page, page, limit);
+      payload = await retriever(octokit, params, per_page, page);
     } catch (e) {
       if (e.message.includes("API rate limit")) {
         console.log(
@@ -136,13 +136,11 @@ const main = async () => {
   );
 
   // Stop 2nd spinner
-  spinner_2.succeed(
-    `${percentage_member_stars}% (${org_member_stars}/${gazers.length}) of ${options.org}/${options.repo}'s ⭐'s come from within ${options.org}`
-  );
+  spinner_2.succeed(`Fetched ${org_members.length} org members from ${options.org}`);
 
   // Check if the stargazers are a member of the set of users from the org
   const internal_org_stars = gazers.filter((g) =>
-    is_org_member(new Set(org_members.data), g.login)
+    is_org_member(new Set(org_members.map(m => m.login)), g.login)
   ).length;
 
   const external_stars = gazers.length - internal_org_stars;
