@@ -6,6 +6,10 @@
   "author": "lineville",
   "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lineville/star-scraper"
+  },
   "dependencies": {
     "command-line-args": "^5.2.1",
     "dotenv": "^16.0.1",
