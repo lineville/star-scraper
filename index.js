@@ -58,6 +58,7 @@ const main = async () => {
     { name: "repo", type: String, multiple: false},
     { name: "limit", type: Number, multiple: false },
     { name: "token", type: String, multiple: false }
+    // { name: "spinner", type: String, multiple: false }
   ];
   const options = commandLineArgs(optionDefinitions);
   
@@ -67,9 +68,22 @@ const main = async () => {
   // Spinner
   const spinner = ora({ 
     text: "Fetching Stargazers",
-    spinner: "aesthetic",
+    spinner: {
+      "interval": 80,
+      "frames": [
+        "⭐⭐⭐⭐⭐⭐⭐",
+        "🌟⭐⭐⭐⭐⭐⭐",
+        "🌟🌟⭐⭐⭐⭐⭐",
+        "🌟🌟🌟⭐⭐⭐⭐",
+        "🌟🌟🌟🌟⭐⭐⭐",
+        "🌟🌟🌟🌟🌟⭐⭐",
+        "🌟🌟🌟🌟🌟🌟⭐",
+        "🌟🌟🌟🌟🌟🌟🌟",
+      ]
+    },
     indent: 4,
   }).start();
+
   
   // Fetch Stargazers of the repo
   const gazers = await fetch_stargazers(octokit, options.org, options.repo, 100, options.limit || 1000);
@@ -78,7 +92,16 @@ const main = async () => {
   // Second spinner for checking if the users are members of the org
   const spinner_2 = ora({
     text: "Checking if Stargazers are org members",
-    spinner: "aesthetic",
+    spinner: {
+      "interval": 80,
+      "frames": [
+        "👀🔎\u3000\u3000\u3000\u3000",
+        "\u3000👀🔎\u3000\u3000\u3000",
+        "\u3000\u3000👀🔎\u3000\u3000",
+        "\u3000\u3000\u3000👀🔎\u3000",
+        "\u3000\u3000\u3000\u3000👀🔎"
+      ]
+    },
     indent: 4,
   }).start();
 
