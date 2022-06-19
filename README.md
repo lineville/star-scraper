@@ -2,11 +2,19 @@
 
 CLI tool and GitHub Action to get some basic stats about a repo's stars and how many of those stars come from members of that organization 👀
 
-## Usage
+## Installation
+
+```bash
+yarn global add star-scraper
+# or
+npm i -g star-scraper
+```
+
+## Local Development
 
 ```bash
 yarn
-yarn --silent start --org <my-github-org> \
+yarn start --org <my-github-org> \
                     --repo <my-github-repo> \
                     --token <my-github-pat> \
                     --limit <max-stars-to-fetch>
