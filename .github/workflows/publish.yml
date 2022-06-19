@@ -5,17 +5,19 @@ name: Publish
 on: [ push, pull_request ]
   
 jobs:
+
   deploy:
     name: Yarn Publish
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 16
-          registry-url: https://registry.npmjs.org/
-      - run: yarn install
-      - run: yarn version --patch
-      - run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+    - uses: actions/checkout@v2
+    - uses: borales/actions-yarn@v3.0.0
+      name: 📦 Yarn Install
+      with:
+        cmd: install
+    - uses: borales/actions-yarn@v3.0.0
+      name: 🚢 Publish
+      with:
+        auth-token: ${{ secrets.NPM_TOKEN }}
+        registry-url: https://registry.npmjs.org/
+
