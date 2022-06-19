@@ -3,7 +3,7 @@ import commandLineArgs from "command-line-args";
 import ora from 'ora';
 import { Octokit } from "octokit";
 
-
+// Checks if a user is a member of an org
 const is_org_member = async (octokit, org, handle) => {
   try {
     const member_of_org = await octokit.request(
@@ -24,6 +24,7 @@ const is_org_member = async (octokit, org, handle) => {
   }
 };
 
+// Fetches all the stargazers of a repo
 const fetch_stargazers = async (octokit, owner, repo, per_page, limit) => {
   let page = 1;
   let gazers = [];
@@ -48,7 +49,10 @@ const fetch_stargazers = async (octokit, owner, repo, per_page, limit) => {
   return gazers;
 };
 
+
 const main = async () => {
+  
+  // CLI options
   const optionDefinitions = [
     { name: "org", type: String, multiple: false },
     { name: "repo", type: String, multiple: false},
@@ -57,23 +61,28 @@ const main = async () => {
   ];
   const options = commandLineArgs(optionDefinitions);
   
+  // GitHub API client
   const octokit = new Octokit({ auth: options.token || process.env.GITHUB_TOKEN });
 
-
+  // Spinner
   const spinner = ora({ 
     text: "Fetching Stargazers",
     spinner: "aesthetic",
     indent: 4,
   }).start();
   
+  // Fetch Stargazers of the repo
   const gazers = await fetch_stargazers(octokit, options.org, options.repo, 100, options.limit || 1000);
   spinner.succeed(`Fetched ${gazers.length} Stargazers`);
 
+  // Second spinner for checking if the users are members of the org
   const spinner_2 = ora({
     text: "Checking if Stargazers are org members",
     spinner: "aesthetic",
     indent: 4,
   }).start();
+
+  // Check if the users are members of the org
   const members_of_org = await Promise.all(
     gazers.map(async (gazer) => {
       const works_at_org = await is_org_member(octokit, options.org, gazer.login);
@@ -84,6 +93,7 @@ const main = async () => {
     })
   );
 
+  // Print the results
   const org_member_stars = members_of_org.filter((member) => member.is_org_member).length;
   const percentage_member_stars = Math.round((org_member_stars / gazers.length) * 100);
   spinner_2.succeed(`(${org_member_stars}/${gazers.length}) -- ${percentage_member_stars}% of stars on repo ${options.org}/${options.repo} come from members of the ${options.org} organization.`);
