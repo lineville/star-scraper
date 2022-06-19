@@ -11,8 +11,11 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "program": "${workspaceFolder}/index.js",
-      "args": ["--org", "github", "--repo", "gh-valet"]
+      "program": "${workspaceFolder}/bin/index.js",
+      "args": ["--org", "github", "--repo", "gh-valet"],
+      "env": {
+        "GITHUB_TOKEN": "GH_TOKEN_HERE"
+      }
     }
   ]
 }
