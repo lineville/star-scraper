@@ -8,18 +8,15 @@ on:
       - main
 
 jobs:
-  deploy:
-    name: 🚢 Deploy
+  publish:
+    name: 🚢 Publish
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: oleksiyrudenko/gha-git-credentials@v2-latest
-      with:
-        token: '${{ secrets.GH_TOKEN }}'
-    - uses: actions/setup-node@v3
-      with:
-        node-version: '14.x'
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-    - run: yarn install --frozen-lockfile
-    - run: yarn publish
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 12
+      - run: yarn install --frozen-lockfile
+      - uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
