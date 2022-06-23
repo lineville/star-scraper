@@ -22,5 +22,11 @@ jobs:
           token: '${{ secrets.GH_TOKEN }}'
       - run: yarn version --patch
       - uses: JS-DevTools/npm-publish@v1
+        name: NPM Publish
         with:
           token: ${{ secrets.NPM_TOKEN }}
+      - uses: JS-DevTools/npm-publish@v1
+        name: GitHub Packages Publish
+        with:
+          registry: https://npm.pkg.github.com/
+          token: ${{ secrets.GH_TOKEN }}
