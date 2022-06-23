@@ -17,6 +17,9 @@ jobs:
         with:
           node-version: 14.x
       - run: yarn install --frozen-lockfile
+      - uses: oleksiyrudenko/gha-git-credentials@v2-latest
+        with:
+          token: '${{ secrets.GH_TOKEN }}'
       - run: yarn version --patch
       - uses: JS-DevTools/npm-publish@v1
         with:
