@@ -22,12 +22,9 @@ jobs:
     name: 🌟 StarGazer Report
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: borales/actions-yarn@v3.0.0
-        name: 📦 Yarn Install
-        with:
-          cmd: install
-      - uses: borales/actions-yarn@v3.0.0
-        name: 🏃‍♂️ Yarn Start
-        with:
-          cmd: --silent start --org ${{ github.event.inputs.org }} --repo ${{ github.event.inputs.repo }} --limit ${{ github.event.inputs.limit }} --token ${{ secrets.GH_TOKEN }} >> $GITHUB_STEP_SUMMARY
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '14.x'
+    - run: yarn install --frozen-lockfile
+    - run: --silent start --org ${{ github.event.inputs.org }} --repo ${{ github.event.inputs.repo }} --limit ${{ github.event.inputs.limit }} --token ${{ secrets.GH_TOKEN }} >> $GITHUB_STEP_SUMMARY

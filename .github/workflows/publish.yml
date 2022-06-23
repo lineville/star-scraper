@@ -3,21 +3,24 @@
 name: 🚢 Publish
 
 on: [ push, pull_request ]
-  
-jobs:
 
+jobs:
   deploy:
-    name: Yarn Publish
+    name: 🚢 Deploy
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: borales/actions-yarn@v3.0.0
-      name: 📦 Yarn Install
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
       with:
-        cmd: install
-    - uses: borales/actions-yarn@v3.0.0
-      name: 🚢 Publish
+        node-version: '14.x'
+    - run: yarn install --frozen-lockfile
+    - run: yarn version --patch
+    - run: yarn publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    - uses: actions/setup-node@v3
       with:
-        auth-token: ${{ secrets.NPM_TOKEN }}
-        cmd: publish
-
+        registry-url: 'https://npm.pkg.github.com'
+    - run: yarn publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.GH_TOKEN }}
