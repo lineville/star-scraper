@@ -10,6 +10,9 @@ yarn global add star-scraper
 npm i -g star-scraper
 ```
 
+![output](https://user-images.githubusercontent.com/25349044/175360213-ee0970b1-e3cc-499a-bd62-845b0f18f8d2.gif)
+
+
 ## Local Development
 
 ```bash
@@ -24,3 +27,4 @@ yarn start --org <my-github-org> \
 - `--org`, `--repo` and `--token` are required.
 
 Or simply run this as a GitHub action by forking and setting the repo secret `GH_TOKEN` to your GitHub PAT.
+
