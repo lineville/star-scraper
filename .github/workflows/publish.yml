@@ -8,8 +8,8 @@ on:
       - main
 
 jobs:
-  publish:
-    name: 🚢 Publish
+  publish-npm:
+    name: 🚢 NPM Publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -19,14 +19,25 @@ jobs:
       - run: yarn install --frozen-lockfile
       - uses: oleksiyrudenko/gha-git-credentials@v2-latest
         with:
-          token: '${{ secrets.GH_TOKEN }}'
+          token: "${{ secrets.GH_TOKEN }}"
       - run: yarn version --patch
       - uses: JS-DevTools/npm-publish@v1
-        name: NPM Publish
         with:
           token: ${{ secrets.NPM_TOKEN }}
-      - uses: JS-DevTools/npm-publish@v1
-        name: GitHub Packages Publish
+
+  publish-github:
+    name: GitHub Packages Publish
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          registry: https://npm.pkg.github.com/
-          token: ${{ secrets.GH_TOKEN }}
+          node-version: 14.x
+          registry-url: https://npm.pkg.github.com/
+      - run: yarn install --frozen-lockfile
+      - uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
