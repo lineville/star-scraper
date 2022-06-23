@@ -25,3 +25,6 @@ jobs:
         with:
           token: ${{ secrets.NPM_TOKEN }}
           registry: https://registry.npmjs.org/
+      - uses: EndBug/add-and-commit@v9
+        with:
+          default_author: lineville
