@@ -17,23 +17,11 @@ jobs:
         with:
           node-version: 14.x
       - run: yarn install --frozen-lockfile
+      - uses: oleksiyrudenko/gha-git-credentials@v2-latest
+        with:
+          token: "${{ secrets.GH_TOKEN }}"
+      - run: yarn version --patch --no-git-tag-version
       - uses: JS-DevTools/npm-publish@v1
         with:
           token: ${{ secrets.NPM_TOKEN }}
-
-  publish-github:
-    name: GitHub Packages Publish
-    runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 14.x
-          registry-url: https://npm.pkg.github.com/
-      - run: yarn install --frozen-lockfile
-      - uses: JS-DevTools/npm-publish@v1
-        with:
-          token: ${{ secrets.NPM_TOKEN }}
+          registry: https://registry.npmjs.org/

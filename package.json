@@ -23,8 +23,5 @@
   },
   "bin": {
     "star-scraper": "./bin/index.js"
-  },
-  "publishConfig": {
-    "@liamneville:registry":"https://npm.pkg.github.com/"
   }
 }
