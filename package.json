@@ -1,5 +1,5 @@
 {
-  "name": "star-scraper",
+  "name": "@lineville/star-scraper",
   "version": "1.1.5",
   "description": "Utility to fetch info about GitHub stargazers",
   "main": "index.js",
