@@ -38,6 +38,10 @@ jobs:
           node-version: 14.x
           registry-url: https://npm.pkg.github.com/
       - run: yarn install --frozen-lockfile
+      - uses: oleksiyrudenko/gha-git-credentials@v2-latest
+        with:
+          token: "${{ secrets.GH_TOKEN }}"
+      - run: yarn install --frozen-lockfile
       - uses: JS-DevTools/npm-publish@v1
         with:
           token: ${{ secrets.NPM_TOKEN }}
