@@ -23,7 +23,7 @@ yarn start --org <my-github-org> \
                     --limit <max-stars-to-fetch>
 ```
 
-- `<max-stars-to-fetch>` is optional and defaults to 1,000.
+- `--limit` is optional and defaults to 1,000.
 - `--org`, `--repo` and `--token` are required.
 
 Or simply run this as a GitHub action by forking and setting the repo secret `GH_TOKEN` to your GitHub PAT.
