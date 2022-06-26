@@ -31,7 +31,8 @@ jobs:
         run: yarn install
       - name: tsc
         uses: icrawl/action-tsc@v1
-  build:
+  report:
+    needs: tsc
     name: 🌟 StarGazer Report
     runs-on: ubuntu-latest
     steps:
