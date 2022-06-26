@@ -1,4 +1,4 @@
 node_modules
-bin
+*.js.map
 .env
 yarn-error.log
