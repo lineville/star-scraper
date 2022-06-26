@@ -2,7 +2,7 @@
   "name": "star-scraper",
   "version": "1.2.5",
   "description": "Utility to fetch info about GitHub stargazers",
-  "main": "index.js",
+  "main": "bin/index.js",
   "author": "lineville",
   "license": "MIT",
   "type": "module",
