@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: icrawl/action-tsc@v1
       - uses: actions/setup-node@v3
         with:
           node-version: 14.x
@@ -20,6 +21,7 @@ jobs:
       - uses: oleksiyrudenko/gha-git-credentials@v2-latest
         with:
           token: "${{ secrets.GH_TOKEN }}"
+      - run: yarn build
       - run: yarn version --patch --no-git-tag-version
       - uses: JS-DevTools/npm-publish@v1
         with:

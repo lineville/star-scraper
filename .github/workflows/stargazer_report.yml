@@ -23,8 +23,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: icrawl/action-tsc@v1
     - uses: actions/setup-node@v3
       with:
         node-version: '14.x'
     - run: yarn install --frozen-lockfile
+    - run: yarn build
     - run: --silent start --org ${{ github.event.inputs.org }} --repo ${{ github.event.inputs.repo }} --limit ${{ github.event.inputs.limit }} --token ${{ secrets.GH_TOKEN }} >> $GITHUB_STEP_SUMMARY
