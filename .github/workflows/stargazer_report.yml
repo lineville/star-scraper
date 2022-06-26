@@ -7,26 +7,37 @@ on:
   workflow_dispatch:
     inputs:
       org:
-        description: 'GitHub Organization'
+        description: "GitHub Organization"
         required: true
       repo:
-        description: 'GitHub Repository'
+        description: "GitHub Repository"
         required: true
       limit:
-        description: 'Max stargazers to fetch'
+        description: "Max stargazers to fetch"
         required: false
         default: "10000"
 
 jobs:
+  tsc:
+    name: 📦 Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14.x
+      - name: yarn install --frozen-lockfile
+        run: yarn install
+      - name: tsc
+        uses: icrawl/action-tsc@v1
   build:
     name: 🌟 StarGazer Report
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: icrawl/action-tsc@v1
-    - uses: actions/setup-node@v3
-      with:
-        node-version: '14.x'
-    - run: yarn install --frozen-lockfile
-    - run: yarn build
-    - run: --silent start --org ${{ github.event.inputs.org }} --repo ${{ github.event.inputs.repo }} --limit ${{ github.event.inputs.limit }} --token ${{ secrets.GH_TOKEN }} >> $GITHUB_STEP_SUMMARY
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "14.x"
+      - run: yarn install --frozen-lockfile
+      - run: --silent start --org ${{ github.event.inputs.org }} --repo ${{ github.event.inputs.repo }} --limit ${{ github.event.inputs.limit }} --token ${{ secrets.GH_TOKEN }} >> $GITHUB_STEP_SUMMARY
