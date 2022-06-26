@@ -68,7 +68,8 @@ const main = async () => {
       owner: options.org,
       repo: options.repo,
       per_page: 100,
-    }
+    },
+    (res) => res.data.map((stargazer) => stargazer?.login)
   );
 
   // Stop spinner
@@ -110,7 +111,7 @@ const main = async () => {
 
   // Filter the star_gazers by the ones that belong to the org
   const internal_org_stars = star_gazers.filter((g) =>
-    org_members.has(g.login)
+    g ? org_members.has(g) : false
   );
 
   // Stargazer count of non-org members
