@@ -13,19 +13,7 @@ const MyOctokit = Octokit.plugin(paginateRest);
 
 marked.setOptions({ renderer: new TerminalRenderer() });
 
-// ________CONSTANTS________
 const DEFAULT_LIMIT: number = 100_000;
-
-// Checks if a user is a member of an org
-const is_org_member = (org_members: Set<string>, handle: string): boolean =>
-  org_members.has(handle);
-
-// Validates CLI options
-const validateOptions = (options) => {
-  if (!options.org || !options.repo) {
-    throw new Error("Need to specify --org and --repo");
-  }
-};
 
 // Main entry point
 const main = async () => {
@@ -42,11 +30,14 @@ const main = async () => {
     { name: "token", type: String, multiple: false },
   ];
 
-  // Parse + validate CLI options
+  // Parse & validate CLI options
   const options = commandLineArgs(optionDefinitions);
-  validateOptions(options);
 
-  // Create GitHub API client
+  if (!options.org || !options.repo) {
+    throw new Error("Need to specify --org and --repo");
+  }
+
+  // Create GitHub API client using token from cli or env
   const octokit = new MyOctokit({
     auth: options.token || process.env.GITHUB_TOKEN,
   });
@@ -99,26 +90,35 @@ const main = async () => {
     indent: 4,
   }).start();
 
-  // TODO: Not fetching all the org members... Fetch all the members of the org
-  const org_members = await octokit.paginate("GET /orgs/{org}/members", {
-    org: options.org,
-    per_page: 100,
-  });
+  // Fetch all org members
+  const org_members = new Set(
+    await octokit.paginate(
+      "GET /orgs/{org}/members",
+      {
+        org: options.org,
+        per_page: 100,
+        filter: "all",
+      },
+      (res) => res.data.map((member) => member.login)
+    )
+  );
 
   // Stop 2nd spinner
   spinner_2.succeed(
-    `Fetched ${org_members.length} org members from ${options.org}`
+    `Fetched ${org_members.size} org members from ${options.org}`
   );
 
-  // Check if the stargazers are a member of the set of users from the org
-  const internal_org_stars: number = star_gazers.filter((g) =>
-    is_org_member(new Set(org_members.map((m) => m.login)), g.login)
-  ).length;
+  // Filter the star_gazers by the ones that belong to the org
+  const internal_org_stars = star_gazers.filter((g) =>
+    org_members.has(g.login)
+  );
 
-  const external_stars: number = star_gazers.length - internal_org_stars;
+  // Stargazer count of non-org members
+  const external_stars: number = star_gazers.length - internal_org_stars.length;
 
+  // Percentage of org member stars of the total stars
   const percentage_member_stars: number = Math.round(
-    (internal_org_stars / star_gazers.length) * 100
+    (internal_org_stars.length / star_gazers.length) * 100
   );
 
   // Print the results
@@ -126,7 +126,7 @@ const main = async () => {
     - 🏗️ Organization: ${options.org}
     - 👨‍💻 Repository: ${options.repo}
     - 🌟 Total stars: ${star_gazers.length}
-    - 👀 Org-member stars: ${internal_org_stars}
+    - 👀 Org-member stars: ${internal_org_stars.length}
     - ❣️ Non-org-member stars: ${external_stars}
     - 👨‍🔬 ~${percentage_member_stars}% of stars come from within ${options.org}
   `;

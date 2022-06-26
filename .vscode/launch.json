@@ -8,14 +8,18 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/bin/index.js",
-      "args": ["--org", "github", "--repo", "gh-valet", "--limit", "100000"],
-      "env": {
-        "GITHUB_TOKEN": "GH_TOKEN_HERE"
-      }
+      "args": [
+        "--org",
+        "github",
+        "--repo",
+        "gh-valet",
+        "--limit",
+        "100000",
+        "--token",
+        "YOUR_GITHUB_TOKEN"
+      ]
     }
   ]
 }
