@@ -21,7 +21,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "start": "yarn build && node bin/index.js",
+    "start": "yarn --silent build && node bin/index.js",
     "dev": "node bin/index.js"
   },
   "bin": {
