@@ -26,6 +26,11 @@ jobs:
     name: 🚢 NPM Publish
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14.x
       - uses: oleksiyrudenko/gha-git-credentials@v2-latest
         with:
           token: "${{ secrets.GH_TOKEN }}"
