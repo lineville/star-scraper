@@ -9,9 +9,7 @@ yarn global add star-scraper
 # or
 npm i -g star-scraper
 ```
-
-![output](https://user-images.githubusercontent.com/25349044/175360213-ee0970b1-e3cc-499a-bd62-845b0f18f8d2.gif)
-
+![star-scraper](https://user-images.githubusercontent.com/25349044/175988348-fbb5f343-7faa-4fe1-a38f-d092296b522a.gif)
 
 ## Local Development
 
