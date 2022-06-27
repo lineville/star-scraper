@@ -35,6 +35,7 @@ const main = async () => {
 
   if (!options.org || !options.repo) {
     throw new Error("Need to specify --org and --repo");
+    process.exit(1);
   }
 
   // Create GitHub API client using token from cli or env
@@ -139,4 +140,6 @@ const main = async () => {
   return report;
 };
 
-main();
+await main();
+
+process.exit(0);
