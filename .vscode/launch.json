@@ -16,9 +16,7 @@
         "--repo",
         "gh-valet",
         "--limit",
-        "100000",
-        "--token",
-        "YOUR_GITHUB_TOKEN"
+        "100000"
       ]
     }
   ]

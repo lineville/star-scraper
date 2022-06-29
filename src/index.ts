@@ -9,14 +9,15 @@ import TerminalRenderer from "marked-terminal";
 import { Octokit } from "@octokit/core";
 import { paginateRest } from "@octokit/plugin-paginate-rest";
 
-const MyOctokit = Octokit.plugin(paginateRest);
-
+// Global Configuration
+const GitHubClient = Octokit.plugin(paginateRest);
 marked.setOptions({ renderer: new TerminalRenderer() });
-
 const DEFAULT_LIMIT: number = 100_000;
 
-// Main entry point
-const main = async () => {
+// __________________________________________________________________________
+
+// Handles CLI options
+const handleCLIOptions = async () => {
   // Define CLI options
   const optionDefinitions = [
     { name: "org", type: String, multiple: false },
@@ -29,19 +30,32 @@ const main = async () => {
     },
     { name: "token", type: String, multiple: false },
   ];
-
+  
   // Parse & validate CLI options
   const options = commandLineArgs(optionDefinitions);
-
-  if (!options.org || !options.repo) {
-    throw new Error("Need to specify --org and --repo");
+  
+  if (options.org == null || options.repo == null) {
+    process.stderr.write("Need to specify --org and --repo");
+    process.exit(1);
+  }
+  
+  const token = options.token ?? process.env.GITHUB_TOKEN;
+  if (!token) {
+    process.stderr.write("No GitHub token specified or found in environment");
     process.exit(1);
   }
 
+  return { options, token };
+}
+
+// Main entry point
+const main = async () => {
+
+  // Parse CLI options
+  const { options, token } = await handleCLIOptions();
+
   // Create GitHub API client using token from cli or env
-  const octokit = new MyOctokit({
-    auth: options.token || process.env.GITHUB_TOKEN,
-  });
+  const octokit = new GitHubClient({ auth: token });
 
   // Spinner start
   const spinner: Ora = ora({
@@ -111,8 +125,8 @@ const main = async () => {
   );
 
   // Filter the star_gazers by the ones that belong to the org
-  const internal_org_stars = star_gazers.filter((g) =>
-    g ? org_members.has(g) : false
+  const internal_org_stars = star_gazers.filter((sg) =>
+    sg ? org_members.has(sg) : false
   );
 
   // Stargazer count of non-org members
@@ -140,6 +154,6 @@ const main = async () => {
   return report;
 };
 
+// Call main, wait for it to finish, and then exit
 await main();
-
 process.exit(0);

@@ -7,11 +7,13 @@ import { marked } from "marked";
 import TerminalRenderer from "marked-terminal";
 import { Octokit } from "@octokit/core";
 import { paginateRest } from "@octokit/plugin-paginate-rest";
-const MyOctokit = Octokit.plugin(paginateRest);
+// Global Configuration
+const GitHubClient = Octokit.plugin(paginateRest);
 marked.setOptions({ renderer: new TerminalRenderer() });
 const DEFAULT_LIMIT = 100000;
-// Main entry point
-const main = async () => {
+// __________________________________________________________________________
+// Handles CLI options
+const handleCLIOptions = async () => {
     // Define CLI options
     const optionDefinitions = [
         { name: "org", type: String, multiple: false },
@@ -26,14 +28,23 @@ const main = async () => {
     ];
     // Parse & validate CLI options
     const options = commandLineArgs(optionDefinitions);
-    if (!options.org || !options.repo) {
-        throw new Error("Need to specify --org and --repo");
+    if (options.org == null || options.repo == null) {
+        process.stderr.write("Need to specify --org and --repo");
         process.exit(1);
     }
+    const token = options.token ?? process.env.GITHUB_TOKEN;
+    if (!token) {
+        process.stderr.write("No GitHub token specified or found in environment");
+        process.exit(1);
+    }
+    return { options, token };
+};
+// Main entry point
+const main = async () => {
+    // Parse CLI options
+    const { options, token } = await handleCLIOptions();
     // Create GitHub API client using token from cli or env
-    const octokit = new MyOctokit({
-        auth: options.token || process.env.GITHUB_TOKEN,
-    });
+    const octokit = new GitHubClient({ auth: token });
     // Spinner start
     const spinner = ora({
         text: "Fetching Stargazers",
@@ -84,7 +95,7 @@ const main = async () => {
     // Stop 2nd spinner
     spinner_2.succeed(`Fetched ${org_members.size} org members from ${options.org}`);
     // Filter the star_gazers by the ones that belong to the org
-    const internal_org_stars = star_gazers.filter((g) => g ? org_members.has(g) : false);
+    const internal_org_stars = star_gazers.filter((sg) => sg ? org_members.has(sg) : false);
     // Stargazer count of non-org members
     const external_stars = star_gazers.length - internal_org_stars.length;
     // Percentage of org member stars of the total stars
@@ -102,6 +113,7 @@ const main = async () => {
     console.log(marked(report));
     return report;
 };
+// Call main, wait for it to finish, and then exit
 await main();
 process.exit(0);
 //# sourceMappingURL=index.js.map
