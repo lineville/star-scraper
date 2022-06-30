@@ -11,6 +11,7 @@ import { paginateRest } from "@octokit/plugin-paginate-rest";
 const GitHubClient = Octokit.plugin(paginateRest);
 marked.setOptions({ renderer: new TerminalRenderer() });
 const DEFAULT_LIMIT = 100000;
+const MAX_PAGE_SIZE = 100;
 // __________________________________________________________________________
 // Handles CLI options
 const handleCLIOptions = async () => {
@@ -67,7 +68,7 @@ const main = async () => {
     const star_gazers = await octokit.paginate("GET /repos/{owner}/{repo}/stargazers", {
         owner: options.org,
         repo: options.repo,
-        per_page: 100,
+        per_page: MAX_PAGE_SIZE,
     }, (res) => res.data.map((stargazer) => stargazer?.login));
     // Stop spinner
     spinner.succeed(`Fetched ${star_gazers.length} Stargazers`);
@@ -89,23 +90,23 @@ const main = async () => {
     // Fetch all org members
     const org_members = new Set(await octokit.paginate("GET /orgs/{org}/members", {
         org: options.org,
-        per_page: 100,
+        per_page: MAX_PAGE_SIZE,
         filter: "all",
     }, (res) => res.data.map((member) => member.login)));
     // Stop 2nd spinner
     spinner_2.succeed(`Fetched ${org_members.size} org members from ${options.org}`);
     // Filter the star_gazers by the ones that belong to the org
-    const internal_org_stars = star_gazers.filter((sg) => sg ? org_members.has(sg) : false);
+    const internal_org_stars = star_gazers.filter((sg) => sg ? org_members.has(sg) : false).length;
     // Stargazer count of non-org members
-    const external_stars = star_gazers.length - internal_org_stars.length;
+    const external_stars = star_gazers.length - internal_org_stars;
     // Percentage of org member stars of the total stars
-    const percentage_member_stars = Math.round((internal_org_stars.length / star_gazers.length) * 100);
+    const percentage_member_stars = Math.round((internal_org_stars / star_gazers.length) * 100);
     // Print the results
     const report = `# 🌟 StarGazer Report\n\n
     - 🏗️ Organization: ${options.org}
     - 👨‍💻 Repository: ${options.repo}
     - 🌟 Total stars: ${star_gazers.length}
-    - 👀 Org-member stars: ${internal_org_stars.length}
+    - 👀 Org-member stars: ${internal_org_stars}
     - ❣️ Non-org-member stars: ${external_stars}
     - 👨‍🔬 ~${percentage_member_stars}% of stars come from within ${options.org}
   `;
