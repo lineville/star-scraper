@@ -13,6 +13,7 @@ import { paginateRest } from "@octokit/plugin-paginate-rest";
 const GitHubClient = Octokit.plugin(paginateRest);
 marked.setOptions({ renderer: new TerminalRenderer() });
 const DEFAULT_LIMIT: number = 100_000;
+const MAX_PAGE_SIZE: number = 100;
 
 // __________________________________________________________________________
 
@@ -82,7 +83,7 @@ const main = async () => {
     {
       owner: options.org,
       repo: options.repo,
-      per_page: 100,
+      per_page: MAX_PAGE_SIZE,
     },
     (res) => res.data.map((stargazer) => stargazer?.login)
   );
@@ -112,7 +113,7 @@ const main = async () => {
       "GET /orgs/{org}/members",
       {
         org: options.org,
-        per_page: 100,
+        per_page: MAX_PAGE_SIZE,
         filter: "all",
       },
       (res) => res.data.map((member) => member.login)
@@ -125,16 +126,16 @@ const main = async () => {
   );
 
   // Filter the star_gazers by the ones that belong to the org
-  const internal_org_stars = star_gazers.filter((sg) =>
+  const internal_org_stars: number = star_gazers.filter((sg) =>
     sg ? org_members.has(sg) : false
-  );
+  ).length;
 
   // Stargazer count of non-org members
-  const external_stars: number = star_gazers.length - internal_org_stars.length;
+  const external_stars: number = star_gazers.length - internal_org_stars;
 
   // Percentage of org member stars of the total stars
   const percentage_member_stars: number = Math.round(
-    (internal_org_stars.length / star_gazers.length) * 100
+    (internal_org_stars / star_gazers.length) * 100
   );
 
   // Print the results
@@ -142,7 +143,7 @@ const main = async () => {
     - 🏗️ Organization: ${options.org}
     - 👨‍💻 Repository: ${options.repo}
     - 🌟 Total stars: ${star_gazers.length}
-    - 👀 Org-member stars: ${internal_org_stars.length}
+    - 👀 Org-member stars: ${internal_org_stars}
     - ❣️ Non-org-member stars: ${external_stars}
     - 👨‍🔬 ~${percentage_member_stars}% of stars come from within ${options.org}
   `;
