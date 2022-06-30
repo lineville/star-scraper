@@ -9,20 +9,24 @@ yarn global add star-scraper
 # or
 npm i -g star-scraper
 ```
+
 ![star-scraper](https://user-images.githubusercontent.com/25349044/175988348-fbb5f343-7faa-4fe1-a38f-d092296b522a.gif)
 
-## Local Development
+## Usage
 
 ```bash
-yarn
-yarn start --org <my-github-org> \
-                    --repo <my-github-repo> \
-                    --token <my-github-pat> \
-                    --limit <max-stars-to-fetch>
+star-scraper --org <my-github-org> \
+             --repo <my-github-repo> \
+             --token <my-github-pat> \
+             --limit <max-records-to-fetch>
 ```
 
-- `--limit` is optional and defaults to 1,000.
 - `--org`, `--repo` and `--token` are required.
+- `--token` can optionally be supplied as an environment variable via `GITHUB_TOKEN`.
+- `--limit` is optional and defaults to 100,000.
 
-Or simply run this as a GitHub action by forking and setting the repo secret `GH_TOKEN` to your GitHub PAT.
+## Run as a GitHub action
 
+- Fork this repo
+- Set the `GH_TOKEN` action secret on the repo
+- Manually run the star gazer report workflow
