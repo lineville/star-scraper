@@ -7,17 +7,52 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
+      "name": "Node run",
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/bin/index.js",
+      "args": ["--org", "github", "--repo", "gh-valet", "--limit", "100000"]
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'star-scraper-rust'",
+      "cargo": {
+        "args": [
+          "build",
+          "--bin=star-scraper-rust",
+          "--package=star-scraper-rust"
+        ],
+        "filter": {
+          "name": "star-scraper-rust",
+          "kind": "bin"
+        }
+      },
       "args": [
         "--org",
         "github",
         "--repo",
-        "gh-valet",
-        "--limit",
-        "100000"
-      ]
+        "gh-valet"
+      ],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'star-scraper-rust'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=star-scraper-rust",
+          "--package=star-scraper-rust"
+        ],
+        "filter": {
+          "name": "star-scraper-rust",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
     }
   ]
 }
