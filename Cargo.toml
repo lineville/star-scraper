@@ -1,5 +1,7 @@
 [package]
 name = "star-scraper"
+description = "Utility to fetch info about GitHub stargazers"
+license = "MIT"
 version = "0.1.0"
 edition = "2021"
 
