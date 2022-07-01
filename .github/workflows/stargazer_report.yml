@@ -27,7 +27,7 @@ on:
 
 jobs:
   tsc:
-    if: github.events.inputs.runtime == 'TypeScript (🟦 npm)'
+    if: ${{ github.events.inputs.runtime }} == 'TypeScript (🟦 npm)'
     name: 📦 Build
     runs-on: ubuntu-latest
     steps:
@@ -41,7 +41,7 @@ jobs:
       - name: tsc
         uses: icrawl/action-tsc@v1
   report-tsc:
-    if: github.events.inputs.runtime == 'TypeScript (🟦 npm)'
+    if: ${{ github.events.inputs.runtime }} == 'TypeScript (🟦 npm)'
     needs: tsc
     name: 🌟 StarGazer Report
     runs-on: ubuntu-latest
@@ -53,7 +53,7 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn --silent start --org ${{ github.event.inputs.org }} --repo ${{ github.event.inputs.repo }} --limit ${{ github.event.inputs.limit }} --token ${{ secrets.GH_TOKEN }} >> $GITHUB_STEP_SUMMARY
   report-cargo:
-    if: github.events.inputs.runtime == 'Rust (🦀 cargo)'
+    if: ${{ github.events.inputs.runtime }} == 'Rust (🦀 cargo)'
     name: 🌟 StarGazer Report
     runs-on: ubuntu-latest
     steps:
