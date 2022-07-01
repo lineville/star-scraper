@@ -7,7 +7,9 @@ CLI tool and GitHub Action to get some basic stats about a repo's stars and how 
 ```bash
 yarn global add star-scraper
 # or
-npm i -g star-scraper
+# npm i -g star-scraper
+# or
+# cargo install star-scraper
 ```
 
 ![star-scraper](https://user-images.githubusercontent.com/25349044/175988348-fbb5f343-7faa-4fe1-a38f-d092296b522a.gif)
@@ -28,5 +30,5 @@ star-scraper --org <my-github-org> \
 ## Run as a GitHub action
 
 - Fork this repo
-- Set the `GH_TOKEN` action secret on the repo
+- Set the `GH_TOKEN` actions secret on the repo
 - Manually run the star gazer report workflow

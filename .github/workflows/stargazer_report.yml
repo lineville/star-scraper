@@ -16,9 +16,18 @@ on:
         description: "Max stargazers to fetch"
         required: false
         default: "10000"
+      runtime:
+        type: choice
+        description: Language runtime to use
+        required: false
+        default: Rust (🦀 cargo)
+        options: 
+        - Rust (🦀 cargo)
+        - TypeScript (🟦 npm)
 
 jobs:
   tsc:
+    if: github.events.inputs.runtime == 'TypeScript (🟦 npm)'
     name: 📦 Build
     runs-on: ubuntu-latest
     steps:
@@ -31,7 +40,8 @@ jobs:
         run: yarn install
       - name: tsc
         uses: icrawl/action-tsc@v1
-  report:
+  report-tsc:
+    if: github.events.inputs.runtime == 'TypeScript (🟦 npm)'
     needs: tsc
     name: 🌟 StarGazer Report
     runs-on: ubuntu-latest
@@ -42,3 +52,20 @@ jobs:
           node-version: "14.x"
       - run: yarn install --frozen-lockfile
       - run: yarn --silent start --org ${{ github.event.inputs.org }} --repo ${{ github.event.inputs.repo }} --limit ${{ github.event.inputs.limit }} --token ${{ secrets.GH_TOKEN }} >> $GITHUB_STEP_SUMMARY
+  report-cargo:
+    if: github.events.inputs.runtime == 'Rust (🦀 cargo)'
+    name: 🌟 StarGazer Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --all-features
+      - uses: actions-rs/cargo@v1
+        with:
+          command: run
+          args: --org ${{ github.events.inputs.org }} --repo ${{ github.events.inputs.repo }} --limit ${{ github.events.inputs.limit }} --token ${{ secrets.GH_TOKEN }} >> $GITHUB_STEP_SUMMARY

@@ -4,8 +4,7 @@ description = "Utility to fetch info about GitHub stargazers"
 license = "MIT"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+repository = "https://github.com/lineville/star-scraper"
 
 [dependencies]
 clap = { version = "3.2.8", features = ["derive"] }
