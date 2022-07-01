@@ -143,7 +143,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     .collect::<Vec<String>>();
 
   // Stop first spinner
-  spinner.stop();
+  spinner.stop_with_symbol("🌟");
 
   // Start second spinner
   let mut spinner2 = Spinner::new(Spinners::Aesthetic, "Fetching org members".into());
@@ -156,7 +156,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
   );
 
   // Stop second spinner
-  spinner2.stop();
+  spinner2.stop_with_symbol("🌟");
 
   let internal_org_stars: usize = star_gazers
     .iter()
