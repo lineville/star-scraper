@@ -1,4 +1,4 @@
-# 🌟 Star Scraper
+# 🌟 Star Scraper [![npm version](https://badge.fury.io/js/star-scraper.svg)](https://badge.fury.io/js/star-scraper) ![crates.io](https://img.shields.io/crates/v/star-scraper.svg)
 
 CLI tool and GitHub Action to get some basic stats about a repo's stars and how many of those stars come from members of that organization 👀
 
