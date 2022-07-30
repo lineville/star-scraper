@@ -1,4 +1,5 @@
 use clap::Parser;
+use octocrab::Page;
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, USER_AGENT};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -129,67 +130,90 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
   let token = args
     .token
     .unwrap_or_else(|| env::var("GITHUB_TOKEN").expect("GITHUB_TOKEN not set"));
-  let client = build_client(&token);
 
-  let limit = args.limit.unwrap_or(DEFAULT_LIMIT);
+  let client = octocrab::OctocrabBuilder::new()
+    .personal_token(token)
+    .build()?;
 
-  // Start first spinner
-  let mut spinner = Spinner::new(Spinners::Aesthetic, "Fetching stargazers".into());
+  let starred_repos = client
+    .current()
+    .list_repos_starred_by_authenticated_user()
+    .send()
+    .await?;
 
-  let star_gazers = fetch_star_gazers(&client, &args.org, &args.repo, limit)
-    .await?
-    .iter()
-    .map(|user| user.login.clone())
-    .collect::<Vec<String>>();
-
-  // Stop first spinner
-  spinner.stop_with_symbol("🌟");
-
-  // Start second spinner
-  let mut spinner2 = Spinner::new(Spinners::Aesthetic, "Fetching org members".into());
-
-  let org_members = HashSet::<String>::from_iter(
-    fetch_org_members(&client, &args.org, limit)
-      .await?
-      .iter()
-      .map(|user| user.login.clone()),
-  );
-
-  // Stop second spinner
-  spinner2.stop_with_symbol("🌟");
-
-  let internal_org_stars: usize = star_gazers
-    .iter()
-    .filter(|&user| org_members.contains(user))
-    .collect::<Vec<&String>>()
-    .len();
-
-  let external_stars: usize = star_gazers.len() - internal_org_stars;
-
-  let percentage_member_stars =
-    ((internal_org_stars as f64 / star_gazers.len() as f64) * 100.0).ceil();
-
-  let report: String = String::from(format!(
-    "# 🌟 StarGazer Report\n\n
-    - 🏗️ Organization: {}
-    - 👨‍💻 Repository: {}
-    - 🌟 Total stars: {}
-    - 👀 Org-member stars: {}
-    - ❣️ Non-org-member stars: {}
-    - 👨‍🔬 ~{}% of stars come from within {}
-    ",
-    &args.org,
-    &args.repo,
-    star_gazers.len(),
-    internal_org_stars,
-    external_stars,
-    percentage_member_stars,
-    &args.org
-  ));
-
-  println!("\n\n");
-
-  termimad::print_text(&report);
+  starred_repos.items.iter().for_each(|repo| {
+    println!("{}", repo.name);
+  });
 
   Ok(())
 }
+// #[tokio::main]
+// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//   let args = Args::parse();
+//   let token = args
+//     .token
+//     .unwrap_or_else(|| env::var("GITHUB_TOKEN").expect("GITHUB_TOKEN not set"));
+//   let client = build_client(&token);
+
+//   let limit = args.limit.unwrap_or(DEFAULT_LIMIT);
+
+//   // Start first spinner
+//   let mut spinner = Spinner::new(Spinners::Aesthetic, "Fetching stargazers".into());
+
+//   let star_gazers = fetch_star_gazers(&client, &args.org, &args.repo, limit)
+//     .await?
+//     .iter()
+//     .map(|user| user.login.clone())
+//     .collect::<Vec<String>>();
+
+//   // Stop first spinner
+//   spinner.stop_with_symbol("🌟");
+
+//   // Start second spinner
+//   let mut spinner2 = Spinner::new(Spinners::Aesthetic, "Fetching org members".into());
+
+//   let org_members = HashSet::<String>::from_iter(
+//     fetch_org_members(&client, &args.org, limit)
+//       .await?
+//       .iter()
+//       .map(|user| user.login.clone()),
+//   );
+
+//   // Stop second spinner
+//   spinner2.stop_with_symbol("🌟");
+
+//   let internal_org_stars: usize = star_gazers
+//     .iter()
+//     .filter(|&user| org_members.contains(user))
+//     .collect::<Vec<&String>>()
+//     .len();
+
+//   let external_stars: usize = star_gazers.len() - internal_org_stars;
+
+//   let percentage_member_stars =
+//     ((internal_org_stars as f64 / star_gazers.len() as f64) * 100.0).ceil();
+
+//   let report: String = String::from(format!(
+//     "# 🌟 StarGazer Report\n\n
+//     - 🏗️ Organization: {}
+//     - 👨‍💻 Repository: {}
+//     - 🌟 Total stars: {}
+//     - 👀 Org-member stars: {}
+//     - ❣️ Non-org-member stars: {}
+//     - 👨‍🔬 ~{}% of stars come from within {}
+//     ",
+//     &args.org,
+//     &args.repo,
+//     star_gazers.len(),
+//     internal_org_stars,
+//     external_stars,
+//     percentage_member_stars,
+//     &args.org
+//   ));
+
+//   println!("\n\n");
+
+//   termimad::print_text(&report);
+
+//   Ok(())
+// }
