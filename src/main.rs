@@ -94,7 +94,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // // Start second spinner
     // let mut spinner2 = Spinner::new(Spinners::Aesthetic, "Fetching org members".into());
 
-    // TODO Use the orgs.list_members method (once released) to get org memebrs
+    // TODO Use the orgs.list_members method (once released) to get org members
 
     // // Stop second spinner
     // spinner2.stop_with_symbol("🌟");
