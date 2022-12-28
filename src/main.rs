@@ -1,5 +1,5 @@
 use clap::Parser;
-use octocrab::{Octocrab, models::User};
+use octocrab::{Octocrab, models::{StarGazer}};
 use spinners::{Spinner, Spinners};
 use std::env;
 
@@ -33,7 +33,7 @@ async fn fetch_star_gazers(
     org: &str,
     repo: &str,
     limit: u8,
-) -> Result<Vec<User>, Box<dyn std::error::Error>> {
+) -> Result<Vec<StarGazer>, Box<dyn std::error::Error>> {
     let page = client
         .repos(org, repo)
         .list_stargazers()
@@ -67,7 +67,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let star_gazers = fetch_star_gazers(&client, &args.org, &args.repo, limit).await?;
 
     star_gazers.iter().for_each(|sg| {
-        println!("{}", sg.login);
+        println!("{}", sg.user.login);
     });
 
     // Stop first spinner

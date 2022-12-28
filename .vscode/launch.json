@@ -35,10 +35,7 @@
         "--limit",
         "100"
       ],
-      "cwd": "${workspaceFolder}",
-      "env": {
-        "GITHUB_TOKEN": "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"
-      }
+      "cwd": "${workspaceFolder}"
     },
     {
       "type": "lldb",
