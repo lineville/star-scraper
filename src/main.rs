@@ -1,11 +1,10 @@
 use clap::Parser;
-use octocrab::{Octocrab, models};
-use serde::{Deserialize, Serialize};
+use octocrab::{Octocrab, models::User};
 use spinners::{Spinner, Spinners};
 use std::env;
 
 // Global Configuration
-const DEFAULT_LIMIT: u32 = 100_000;
+const DEFAULT_LIMIT: u8 = 100;
 
 // CLI Arguments
 #[derive(Parser, Debug)]
@@ -25,12 +24,7 @@ struct Args {
 
     // Limit the number of records to fetch
     #[clap(short, long, value_parser)]
-    limit: Option<u32>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct User {
-    login: String,
+    limit: Option<u8>,
 }
 
 
@@ -38,32 +32,17 @@ async fn fetch_star_gazers(
     client: &Octocrab,
     org: &str,
     repo: &str,
-    limit: u32,
+    limit: u8,
 ) -> Result<Vec<User>, Box<dyn std::error::Error>> {
-    let mut page = client
+    let page = client
         .repos(org, repo)
         .list_stargazers()
+        .per_page(limit)
         .send()
         .await?;
 
-    let mut total_data: Vec<User> = Vec::new();
-
-    loop {
-        total_data.extend(page.items.iter().map(|star_gazer| User {
-            login: star_gazer.login.to_string(),
-        }));
-        if total_data.len() >= limit as usize {
-            break;
-        }
-        page = match client
-            .get_page::<models::User>(&page.next)
-            .await?
-        {
-            Some(next_page) => next_page,
-            None => break,
-        }
-    }
-    Ok(total_data)
+    let results = client.all_pages(page).await?;
+    Ok(results)
 }
 
 #[tokio::main]
@@ -77,7 +56,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .personal_token(token)
         .build()?;
 
-    let limit = args.limit.unwrap_or(DEFAULT_LIMIT);
+    let limit = match args.limit {
+        Some(limit) => limit,
+        None => DEFAULT_LIMIT,
+    };
 
     // Start first spinner
     let mut spinner = Spinner::new(Spinners::Aesthetic, "Fetching stargazers".into());
