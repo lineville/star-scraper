@@ -32,8 +32,6 @@
         "github",
         "--repo",
         "gh-valet",
-        "--limit",
-        "100"
       ],
       "cwd": "${workspaceFolder}"
     },
