@@ -2,6 +2,8 @@
 
 CLI tool and GitHub Action to get some basic stats about a repo's stars and how many of those stars come from members of that organization 👀
 
+- Create a GitHub PAT (Personal Access Token) with `org:read` scope and set it as the `$GITHUB_TOKEN` environment variable
+
 ## Installation
 
 ```bash
