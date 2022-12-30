@@ -29,8 +29,8 @@ const handleCLIOptions = async () => {
     ];
     // Parse & validate CLI options
     const options = commandLineArgs(optionDefinitions);
-    if (options.org == null || options.repo == null) {
-        process.stderr.write("Need to specify --org and --repo");
+    if (options.org == null) {
+        process.stderr.write("Need to specify --org");
         process.exit(1);
     }
     const token = options.token ?? process.env.GITHUB_TOKEN;
@@ -40,12 +40,7 @@ const handleCLIOptions = async () => {
     }
     return { options, token };
 };
-// Main entry point
-const main = async () => {
-    // Parse CLI options
-    const { options, token } = await handleCLIOptions();
-    // Create GitHub API client using token from cli or env
-    const octokit = new GitHubClient({ auth: token });
+const fetchStarGazers = async (octokit, org, repo) => {
     // Spinner start
     const spinner = ora({
         text: "Fetching Stargazers",
@@ -66,14 +61,17 @@ const main = async () => {
     }).start();
     // Fetch stargazers
     const star_gazers = await octokit.paginate("GET /repos/{owner}/{repo}/stargazers", {
-        owner: options.org,
-        repo: options.repo,
+        owner: org,
+        repo: repo,
         per_page: MAX_PAGE_SIZE,
     }, (res) => res.data.map((stargazer) => stargazer?.login));
     // Stop spinner
-    spinner.succeed(`Fetched ${star_gazers.length} Stargazers`);
-    // Second spinner for checking if the users are members of the org
-    const spinner_2 = ora({
+    spinner.succeed(`Found ${star_gazers.length} star gazers from ${org}/${repo}`);
+    return star_gazers;
+};
+const fetchOrgMembers = async (octokit, org) => {
+    // Spinner for checking if the users are members of the org
+    const spinner = ora({
         text: "Checking if Stargazers are org members",
         spinner: {
             interval: 80,
@@ -89,12 +87,37 @@ const main = async () => {
     }).start();
     // Fetch all org members
     const org_members = new Set(await octokit.paginate("GET /orgs/{org}/members", {
-        org: options.org,
+        org,
         per_page: MAX_PAGE_SIZE,
         filter: "all",
     }, (res) => res.data.map((member) => member.login)));
-    // Stop 2nd spinner
-    spinner_2.succeed(`Fetched ${org_members.size} org members from ${options.org}`);
+    // Stop org members spinner
+    spinner.succeed(`Found ${org_members.size} org members in ${org}`);
+    return org_members;
+};
+const fetchRepos = async (octokit, org) => {
+    // Spinner for checking if the users are members of the org
+    const spinner = ora({
+        text: `Fetching all public repos in org ${org}`,
+        spinner: {
+            interval: 80,
+            frames: [
+                "👀🔎\u3000\u3000\u3000\u3000",
+                "\u3000👀🔎\u3000\u3000\u3000",
+                "\u3000\u3000👀🔎\u3000\u3000",
+                "\u3000\u3000\u3000👀🔎\u3000",
+                "\u3000\u3000\u3000\u3000👀🔎",
+            ],
+        },
+        indent: 4,
+    }).start();
+    // Fetch all org members
+    const repos = await octokit.paginate("GET /orgs/{org}/repos", { org, type: "public", per_page: MAX_PAGE_SIZE, sort: "updated" }, (res) => res.data.map((repo) => repo?.name));
+    // Stop org members spinner
+    spinner.succeed(`Found ${repos.length} public repos in ${org}`);
+    return repos;
+};
+const createStarGazerReport = (org, repo, star_gazers, org_members) => {
     // Filter the star_gazers by the ones that belong to the org
     const internal_org_stars = star_gazers.filter((sg) => sg ? org_members.has(sg) : false).length;
     // Stargazer count of non-org members
@@ -103,14 +126,30 @@ const main = async () => {
     const percentage_member_stars = Math.round((internal_org_stars / star_gazers.length) * 100);
     // Print the results
     const report = `# 🌟 StarGazer Report\n\n
-    - 🏗️ Organization: ${options.org}
-    - 👨‍💻 Repository: ${options.repo}
+    - 🏗️ Organization: ${org}
+    - 👨‍💻 Repository: ${repo}
     - 🌟 Total stars: ${star_gazers.length}
     - 👀 Org-member stars: ${internal_org_stars}
     - ❣️ Non-org-member stars: ${external_stars}
-    - 👨‍🔬 ~${percentage_member_stars}% of stars come from within ${options.org}
-  `;
-    console.log("\n\n");
+    - 👨‍🔬 ~${percentage_member_stars}% of stars come from within ${org}
+  \n\n`;
+    return report;
+};
+// Main entry point
+const main = async () => {
+    // Parse CLI options
+    const { options, token } = await handleCLIOptions();
+    // Create GitHub API client using token from cli or env
+    const octokit = new GitHubClient({ auth: token });
+    const org_members = await fetchOrgMembers(octokit, options.org);
+    let report = "";
+    let repos = options.repo == null
+        ? await fetchRepos(octokit, options.org)
+        : [options.repo];
+    for (const repo of repos.slice(0, 5)) {
+        const star_gazers = await fetchStarGazers(octokit, options.org, repo);
+        report += createStarGazerReport(options.org, repo, star_gazers, org_members);
+    }
     console.log(marked(report));
     return report;
 };

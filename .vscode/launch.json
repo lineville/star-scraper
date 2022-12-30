@@ -15,15 +15,15 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug executable 'star-scraper-rust'",
+      "name": "Debug executable 'star-scraper'",
       "cargo": {
         "args": [
           "build",
-          "--bin=star-scraper-rust",
-          "--package=star-scraper-rust"
+          "--bin=star-scraper",
+          "--package=star-scraper"
         ],
         "filter": {
-          "name": "star-scraper-rust",
+          "name": "star-scraper",
           "kind": "bin"
         }
       },
@@ -31,23 +31,23 @@
         "--org",
         "github",
         "--repo",
-        "gh-valet"
+        "gh-valet",
       ],
       "cwd": "${workspaceFolder}"
     },
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests in executable 'star-scraper-rust'",
+      "name": "Debug unit tests in executable 'star-scraper'",
       "cargo": {
         "args": [
           "test",
           "--no-run",
-          "--bin=star-scraper-rust",
-          "--package=star-scraper-rust"
+          "--bin=star-scraper",
+          "--package=star-scraper"
         ],
         "filter": {
-          "name": "star-scraper-rust",
+          "name": "star-scraper",
           "kind": "bin"
         }
       },

@@ -1,176 +1,162 @@
 use clap::Parser;
-use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, USER_AGENT};
-use reqwest::Client;
-use serde::{Deserialize, Serialize};
+use octocrab::{
+    models::{StarGazer, User},
+    Octocrab,
+};
 use spinners::{Spinner, Spinners};
-use std::collections::HashSet;
 use std::env;
-use std::iter::FromIterator;
 
 // Global Configuration
-const DEFAULT_LIMIT: u32 = 100_000;
-const MAX_PAGE_SIZE: u32 = 100;
+const DEFAULT_LIMIT: u32 = 10000;
 
 // CLI Arguments
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
-  /// Organization name
-  #[clap(short, long, value_parser)]
-  org: String,
+    /// Organization name
+    #[clap(short, long, value_parser)]
+    org: String,
 
-  /// Repo name
-  #[clap(short, long, value_parser)]
-  repo: String,
+    /// Repo name
+    #[clap(short, long, value_parser)]
+    repo: String,
 
-  /// GitHub token
-  #[clap(short, long, value_parser)]
-  token: Option<String>,
+    /// GitHub token
+    #[clap(short, long, value_parser)]
+    token: Option<String>,
 
-  // Limit the number of records to fetch
-  #[clap(short, long, value_parser)]
-  limit: Option<u32>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct User {
-  login: String,
-}
-
-async fn fetch_all_users(
-  client: &Client,
-  url: &str,
-  limit: u32,
-) -> Result<Vec<User>, Box<dyn std::error::Error>> {
-  let mut total_data = Vec::new();
-  let mut page = 1;
-
-  loop {
-    let response = client
-      .get(url)
-      .query(&[("page", page), ("per_page", MAX_PAGE_SIZE)])
-      .send()
-      .await?;
-
-    match response.error_for_status_ref() {
-      Ok(_response) => {
-        let payload = response.json::<serde_json::Value>().await?;
-        let users: Vec<User> = payload
-          .as_array()
-          .unwrap()
-          .iter()
-          .map(|star_gazer| User {
-            login: star_gazer.as_object().unwrap()["login"]
-              .as_str()
-              .unwrap()
-              .to_string(),
-          })
-          .collect();
-
-        let payload_length = users.len();
-        total_data.extend(users);
-        page += 1;
-
-        if payload_length < MAX_PAGE_SIZE as usize || total_data.len() >= limit as usize {
-          break;
-        }
-      }
-      Err(response) => {
-        return Err(response.into());
-      }
-    }
-  }
-  Ok(total_data)
+    // Limit the number of records to fetch
+    #[clap(short, long, value_parser)]
+    limit: Option<u32>,
 }
 
 async fn fetch_star_gazers(
-  client: &Client,
-  org: &str,
-  repo: &str,
-  limit: u32,
-) -> Result<Vec<User>, Box<dyn std::error::Error>> {
-  let url = format!(
-    "https://api.github.com/repos/{owner}/{repo}/stargazers",
-    owner = org,
-    repo = repo
-  );
+    client: &Octocrab,
+    org: &str,
+    repo: &str,
+    limit: u32,
+) -> Result<Vec<StarGazer>, Box<dyn std::error::Error>> {
+    let mut star_gazers: Vec<StarGazer> = Vec::new();
 
-  fetch_all_users(client, &url, limit).await
+    let mut page: u8 = 1;
+    let per_page: u8 = 100;
+
+    loop {
+        let mut new_star_gazers = client
+            .repos(org, repo)
+            .list_stargazers()
+            .per_page(per_page)
+            .page(page)
+            .send()
+            .await?;
+
+        let new_star_gazers_count = new_star_gazers.items.len();
+
+        star_gazers.append(&mut new_star_gazers.items);
+
+        if star_gazers.len() >= limit as usize {
+            break;
+        }
+
+        if new_star_gazers_count < per_page as usize {
+            break;
+        }
+
+        page += 1;
+    }
+
+    Ok(star_gazers)
 }
 
 async fn fetch_org_members(
-  client: &Client,
-  org: &str,
-  limit: u32,
+    client: &Octocrab,
+    org: &str,
+    limit: u32,
 ) -> Result<Vec<User>, Box<dyn std::error::Error>> {
-  let url = format!("https://api.github.com/orgs/{org}/members", org = org);
+    let mut org_members: Vec<User> = Vec::new();
 
-  fetch_all_users(client, &url, limit).await
-}
+    let mut page: u8 = 1;
+    let per_page: u8 = 100;
 
-fn build_client(token: &str) -> Client {
-  let mut headers = HeaderMap::new();
-  headers.insert(
-    AUTHORIZATION,
-    HeaderValue::from_str(&format!("token {}", token)).unwrap(),
-  );
-  headers.insert(
-    ACCEPT,
-    HeaderValue::from_static("application/vnd.github.v3+json"),
-  );
-  headers.insert(USER_AGENT, HeaderValue::from_static("request"));
+    loop {
+        let mut new_org_members = client
+            .orgs(org)
+            .list_members()
+            .per_page(per_page)
+            .page(page)
+            .send()
+            .await?;
 
-  Client::builder().default_headers(headers).build().unwrap()
+        let new_org_members_count = new_org_members.items.len();
+
+        org_members.append(&mut new_org_members.items);
+
+        if org_members.len() >= limit as usize {
+            break;
+        }
+
+        if new_org_members_count < per_page as usize {
+            break;
+        }
+
+        page += 1;
+    }
+
+    Ok(org_members)
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-  let args = Args::parse();
-  let token = args
-    .token
-    .unwrap_or_else(|| env::var("GITHUB_TOKEN").expect("GITHUB_TOKEN not set"));
-  let client = build_client(&token);
+    let args = Args::parse();
+    let token = args
+        .token
+        .unwrap_or_else(|| env::var("GITHUB_TOKEN").expect("GITHUB_TOKEN not set"));
 
-  let limit = args.limit.unwrap_or(DEFAULT_LIMIT);
+    let client = octocrab::OctocrabBuilder::new()
+        .personal_token(token)
+        .build()?;
 
-  // Start first spinner
-  let mut spinner = Spinner::new(Spinners::Aesthetic, "Fetching stargazers".into());
+    let limit = match args.limit {
+        Some(limit) => limit,
+        None => DEFAULT_LIMIT,
+    };
 
-  let star_gazers = fetch_star_gazers(&client, &args.org, &args.repo, limit)
-    .await?
-    .iter()
-    .map(|user| user.login.clone())
-    .collect::<Vec<String>>();
+    // Start first spinner
+    let mut spinner = Spinner::new(Spinners::Aesthetic, "Fetching stargazers".into());
 
-  // Stop first spinner
-  spinner.stop_with_symbol("🌟");
+    let star_gazers = fetch_star_gazers(&client, &args.org, &args.repo, limit).await?;
 
-  // Start second spinner
-  let mut spinner2 = Spinner::new(Spinners::Aesthetic, "Fetching org members".into());
+    // Stop first spinner
+    spinner.stop_with_symbol(format!("({}) 🌟", star_gazers.len()).as_str());
 
-  let org_members = HashSet::<String>::from_iter(
-    fetch_org_members(&client, &args.org, limit)
-      .await?
-      .iter()
-      .map(|user| user.login.clone()),
-  );
+    // Start second spinner
+    let mut spinner2 = Spinner::new(Spinners::Aesthetic, "Fetching org members".into());
 
-  // Stop second spinner
-  spinner2.stop_with_symbol("🌟");
+    let members = match fetch_org_members(&client, &args.org, limit).await {
+        Ok(org_members) => {
+            let members: Vec<String> = org_members.iter().map(|u| u.to_owned().login).collect();
+            spinner2.stop_with_symbol(format!("({}) 🌟", members.len()).as_str());
+            members
+        }
+        Err(_e) => {
+            spinner2.stop();
+            println!("{} Is not an org so all of the stars are external, try again with a repo that belongs to an organization (not an individual account)", &args.org);
+            std::process::exit(0);
+        }
+    };
 
-  let internal_org_stars: usize = star_gazers
-    .iter()
-    .filter(|&user| org_members.contains(user))
-    .collect::<Vec<&String>>()
-    .len();
+    let internal_org_stars = star_gazers
+        .iter()
+        .filter(|sg| members.contains(&sg.user.as_ref().unwrap().login))
+        .count();
 
-  let external_stars: usize = star_gazers.len() - internal_org_stars;
+    let external_stars: usize = star_gazers.len() - internal_org_stars;
 
-  let percentage_member_stars =
-    ((internal_org_stars as f64 / star_gazers.len() as f64) * 100.0).ceil();
+    let percentage_member_stars =
+        ((internal_org_stars as f64 / star_gazers.len() as f64) * 100.0).ceil();
 
-  let report: String = String::from(format!(
-    "# 🌟 StarGazer Report\n\n
+    let report: String = String::from(format!(
+        "# 🌟 StarGazer Report\n\n
     - 🏗️ Organization: {}
     - 👨‍💻 Repository: {}
     - 🌟 Total stars: {}
@@ -178,18 +164,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     - ❣️ Non-org-member stars: {}
     - 👨‍🔬 ~{}% of stars come from within {}
     ",
-    &args.org,
-    &args.repo,
-    star_gazers.len(),
-    internal_org_stars,
-    external_stars,
-    percentage_member_stars,
-    &args.org
-  ));
+        &args.org,
+        &args.repo,
+        star_gazers.len(),
+        internal_org_stars,
+        external_stars,
+        percentage_member_stars,
+        &args.org
+    ));
 
-  println!("\n\n");
+    println!("\n\n");
 
-  termimad::print_text(&report);
+    termimad::print_text(&report);
 
-  Ok(())
+    Ok(())
 }
