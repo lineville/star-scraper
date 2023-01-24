@@ -1,6 +1,6 @@
 {
   "name": "star-scraper",
-  "version": "1.2.26",
+  "version": "1.2.27",
   "description": "Utility to fetch info about GitHub stargazers",
   "main": "bin/index.js",
   "author": "lineville",
