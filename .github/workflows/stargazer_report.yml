@@ -18,28 +18,14 @@ on:
         default: "10000"
 
 jobs:
-  tsc:
-    name: 📦 Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 14.x
-      - name: yarn install --frozen-lockfile
-        run: yarn install
-      - name: tsc
-        uses: icrawl/action-tsc@v1
-  report-tsc:
-    needs: tsc
+  run:
     name: 🌟 StarGazer Report
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: oven-sh/setup-bun@v1
         with:
-          node-version: "14.x"
-      - run: yarn install --frozen-lockfile
-      - run: yarn --silent start --org ${{ github.event.inputs.org }} --repo ${{ github.event.inputs.repo }} --limit ${{ github.event.inputs.limit }} --token ${{ secrets.GH_TOKEN }} >> $GITHUB_STEP_SUMMARY
+          bun-version: latest
+      - run: bun install
+      - run: bun run start --org ${{ github.event.inputs.org }} --repo ${{ github.event.inputs.repo }} --limit ${{ github.event.inputs.limit }} --token ${{ secrets.GH_TOKEN }} >> $GITHUB_STEP_SUMMARY
 

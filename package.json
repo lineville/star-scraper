@@ -21,16 +21,15 @@
   },
   "scripts": {
     "build": "tsc",
-    "start": "yarn --silent build && node bin/index.js",
-    "dev": "node bin/index.js"
+    "start": "yarn --silent build && bun bin/index.js",
+    "dev": "bun bin/index.js"
   },
   "bin": {
     "star-scraper": "./bin/index.js"
   },
   "devDependencies": {
     "@octokit/types": "^6.37.0",
-    "@tsconfig/node14": "^1.0.3",
-    "@types/node": "^18.0.0",
-    "typescript": "^4.7.4"
+    "typescript": "^4.7.4",
+    "bun-types": "latest"
   }
 }

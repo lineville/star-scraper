@@ -1,17 +1,18 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Node 14",
+  "display": "Bun",
 
   "compilerOptions": {
     "lib": ["es2020", "dom"],
-    "module": "esnext",
+    "module": "NodeNext",
     "target": "es2020",
     "outDir": "bin",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "sourceMap": true
+    "sourceMap": true,
+    "moduleResolution": "nodenext",
+    "types": ["bun-types"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "**/*.d.ts"]
